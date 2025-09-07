@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom theme CSS variables matching your color palette */
+[data-theme="mytheme"] {
+  --p: 272.788 74% 37%; /* #592c82 - Primary Purple */
+  --pc: 0 0% 100%; /* White text on primary */
+  --s: 325.831 51% 66%; /* #a25eb5 - Secondary Light Purple */
+  --sc: 0 0% 100%; /* White text on secondary */
+  --a: 272.788 65% 26%; /* #3d1152 - Accent Dark Purple */
+  --ac: 0 0% 100%; /* White text on accent */
+  --n: 0 0% 0%; /* #000000 - Black Neutral */
+  --nc: 0 0% 100%; /* White text on neutral */
+  --b1: 42 16% 87%; /* #e3e1db - Base Cream */
+  --b2: 42 16% 82%; /* Slightly darker cream */
+  --b3: 42 16% 77%; /* Darker cream */
+  --bc: 0 0% 0%; /* #000000 - Black text on base */
+  --in: 199 90% 58%; /* #41b6e6 - Info Blue */
+  --inc: 0 0% 100%; /* White text on info */
+}

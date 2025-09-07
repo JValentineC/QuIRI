@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `github` VARCHAR(191) NULL,
+    ADD COLUMN `orcid` VARCHAR(191) NULL,
+    ADD COLUMN `researchGate` VARCHAR(191) NULL,
+    ADD COLUMN `twitter` VARCHAR(191) NULL;
