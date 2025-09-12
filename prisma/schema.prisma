@@ -1,0 +1,282 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  password    String?
+  firstName   String
+  lastName    String
+  role        UserRole @default(STUDENT)
+  institution String?
+  department  String?
+  bio         String?  @db.Text
+  website     String?
+  linkedin    String?
+  twitter     String?
+  github      String?
+  orcid       String?
+  researchGate String?
+  profileImage String?
+  isPublic    Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  professorProfile  Professor?
+  studentProfile    Student?
+  researchPapers    ResearchPaper[]
+  collaborations    Collaboration[]
+  collaborationParticipations CollaborationParticipant[]
+  eventRegistrations EventRegistration[]
+  fileUploads       FileUpload[]
+  folders           Folder[]
+  messages          Message[]
+  sentMessages      Message[] @relation("MessageSender")
+  
+  @@map("users")
+}
+
+model Professor {
+  id           String @id @default(cuid())
+  userId       String @unique
+  title        String // Dr., Prof., etc.
+  researchAreas String @db.Text // JSON string stored as TEXT
+  publications Int      @default(0)
+  projects     Int      @default(0)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("professors")
+}
+
+model Student {
+  id           String      @id @default(cuid())
+  userId       String      @unique
+  level        StudentLevel
+  year         String
+  researchFocus String?
+  advisor      String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("students")
+}
+
+// Research & Publications
+model ResearchPaper {
+  id          String   @id @default(cuid())
+  title       String
+  abstract    String   @db.Text
+  authors     String   @db.Text // JSON string stored as TEXT
+  field       ResearchField
+  status      PaperStatus @default(DRAFT)
+  publishedAt DateTime?
+  doi         String?
+  pdfUrl      String?
+  isPublic    Boolean  @default(true)
+  downloads   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+  
+  @@map("research_papers")
+}
+
+// File Management
+model Folder {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  privacy     PrivacyLevel @default(PUBLIC)
+  parentId    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  
+  parent   Folder?      @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children Folder[]     @relation("FolderHierarchy")
+  files    FileUpload[]
+  
+  @@map("folders")
+}
+
+model FileUpload {
+  id          String       @id @default(cuid())
+  fileName    String
+  originalName String
+  fileSize    Int
+  mimeType    String
+  filePath    String
+  privacy     PrivacyLevel @default(PUBLIC)
+  description String?
+  downloads   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  uploaderId String
+  uploader   User   @relation(fields: [uploaderId], references: [id])
+  
+  folderId String?
+  folder   Folder? @relation(fields: [folderId], references: [id])
+  
+  @@map("file_uploads")
+}
+
+// Events
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @db.Text
+  type        EventType
+  startDate   DateTime
+  endDate     DateTime?
+  location    String
+  isVirtual   Boolean   @default(false)
+  maxAttendees Int?
+  registrationOpen Boolean @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  registrations EventRegistration[]
+  
+  @@map("events")
+}
+
+model EventRegistration {
+  id           String   @id @default(cuid())
+  registeredAt DateTime @default(now())
+  attended     Boolean  @default(false)
+  
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+  
+  @@unique([userId, eventId])
+  @@map("event_registrations")
+}
+
+// Collaborations
+model Collaboration {
+  id          String              @id @default(cuid())
+  title       String
+  description String              @db.Text
+  status      CollaborationStatus @default(ACTIVE)
+  startDate   DateTime            @default(now())
+  endDate     DateTime?
+  leaderId    String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  
+  leader       User                      @relation(fields: [leaderId], references: [id])
+  participants CollaborationParticipant[]
+  
+  @@map("collaborations")
+}
+
+model CollaborationParticipant {
+  id             String   @id @default(cuid())
+  joinedAt       DateTime @default(now())
+  role           String?
+  isActive       Boolean  @default(true)
+  
+  userId          String
+  collaborationId String
+  
+  user          User          @relation(fields: [userId], references: [id])
+  collaboration Collaboration @relation(fields: [collaborationId], references: [id])
+  
+  @@unique([userId, collaborationId])
+  @@map("collaboration_participants")
+}
+
+// Messaging
+model Message {
+  id        String   @id @default(cuid())
+  subject   String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  sentAt    DateTime @default(now())
+  
+  senderId   String
+  receiverId String
+  
+  sender   User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User @relation(fields: [receiverId], references: [id])
+  
+  @@map("messages")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  PROFESSOR
+  ADMIN
+}
+
+enum StudentLevel {
+  UNDERGRADUATE
+  MASTERS
+  PHD
+  POSTDOC
+}
+
+enum ResearchField {
+  QUANTUM_COMPUTING
+  QUANTUM_COMMUNICATIONS
+  QUANTUM_MATERIALS
+  QUANTUM_SENSING
+  QUANTUM_SIMULATION
+  QUANTUM_INFORMATION_THEORY
+  QUANTUM_OPTICS
+  QUANTUM_CRYPTOGRAPHY
+}
+
+enum PaperStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  PUBLISHED
+  REJECTED
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  INSTITUTION_ONLY
+  COLLABORATORS_ONLY
+  PRIVATE
+}
+
+enum EventType {
+  CONFERENCE
+  WORKSHOP
+  SEMINAR
+  SUMMIT
+  SCHOOL
+  NETWORKING
+  OTHER
+}
+
+enum CollaborationStatus {
+  ACTIVE
+  RECRUITING
+  COMPLETED
+  PAUSED
+}
