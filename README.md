@@ -30,18 +30,21 @@ A comprehensive networking platform for quantum researchers, students, and profe
 ## ⚙️ Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/JValentineC/QuIRI.git
    cd QuIRI
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install --legacy-peer-deps
    ```
 
 3. **Set up environment variables**
    Create a `.env` file in the root directory:
+
    ```env
    # Database Configuration
    DATABASE_URL="mysql://username:password@localhost:3306/quiri_networking"
@@ -65,19 +68,20 @@ A comprehensive networking platform for quantum researchers, students, and profe
 
    # Frontend URL
    FRONTEND_URL=http://localhost:5173
-   
+
    # API Base URL
    API_BASE_URL=http://localhost:3001/api
    ```
 
 4. **Set up the database**
+
    ```bash
    # Generate Prisma client
    npx prisma generate
-   
+
    # Run database migrations
    npx prisma migrate dev --name init
-   
+
    # Seed the database with sample data
    npm run db:seed
    ```
@@ -85,14 +89,15 @@ A comprehensive networking platform for quantum researchers, students, and profe
 ## 🚀 Running the Application
 
 1. **Start the development servers**
+
    ```bash
    # Start both frontend and backend
    npm run start:all
-   
+
    # Or start individually:
    # Backend only
    npm run server:dev
-   
+
    # Frontend only (in another terminal)
    npm run dev
    ```
@@ -107,10 +112,12 @@ A comprehensive networking platform for quantum researchers, students, and profe
 After running the seed script, you can use these demo accounts:
 
 **Professor Account:**
+
 - Email: `dr.chen@quiri.org`
 - Password: `professor123`
 
 **Student Account:**
+
 - Email: `emma.johnson@student.quiri.org`
 - Password: `student123`
 
@@ -166,6 +173,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 If you encounter any issues or have questions:
+
 1. Check the existing issues on GitHub
 2. Create a new issue with detailed information
 3. Contact the development team
